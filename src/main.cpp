@@ -8,9 +8,7 @@
 #include <iostream>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
-#include "SinglePassLbvh.h"
 #include "TwoPassLbvh.h"
-#include "BinnedSahBvh.h"
 
 using namespace BvhConstruction;
 

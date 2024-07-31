@@ -1,7 +1,8 @@
 #include "TwoPassLbvh.h"
 #include <src/Utility.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <dependencies/stbi/stbi_image_write.h>
-#include <dependencies/stbi/stb_image.h>
+#define STB_IMAGE_IMPLEMENTATION
 #include <ParallelPrimitives/RadixSort.h>
 #include <iostream>
 #include <queue>
