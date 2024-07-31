@@ -4,16 +4,9 @@
 using namespace BvhConstruction;
 #define __SHARED_STACK 1 
 
-DEVICE int maxConsecutiveOnes(u64 x)
+DEVICE u64 maxConsecutiveOnes(u64 x)
 {
-	int count = 0;
-	while (true)
-	{
-		x = x << 1;
-		if (x == 0) break;
-		count++;
-	}
-	return (count == 0) ? count : --count;
+	return __clzll(x);
 }
 
 DEVICE bool pop(u64& level, u64& popLevel, u64& trailCount, u32& nodeIdx, u64& depth)
@@ -99,15 +92,7 @@ extern "C" __global__ void BvhTraversalRestartTrail(const  Ray* __restrict__ ray
 						far = node.m_leftChildIdx;
 					}
 					level = level >> 1;
-
-					if (trailCount & level)
-					{
-						nodeIdx = far;
-					}
-					else
-					{
-						nodeIdx = near;
-					}
+					nodeIdx = (trailCount & level) ? far : near;
 				}
 				else
 				{
