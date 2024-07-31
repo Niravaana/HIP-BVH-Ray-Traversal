@@ -9,7 +9,8 @@
 #include <assert.h>
 
 //#define WHILEWHILE 1
-#define IFIF 1
+//#define IFIF 1
+#define RESTART_TRAIL_TRAVERSAL 1
 #define _CPU 1
 using namespace BvhConstruction;
 
@@ -224,7 +225,27 @@ void TwoPassLbvh::traverseBvh(Context& context)
 
 	Oro::GpuMemory<u8> d_colorBuffer(width * height * 4); d_colorBuffer.reset();
 
-#if defined IFIF
+#ifdef RESTART_TRAIL_TRAVERSAL
+	//Traversal kernel
+	{
+		const u32 blockSizeX = 8;
+		const u32 blockSizeY = 8;
+		const u32 gridSizeX = (width + blockSizeX - 1) / blockSizeX;
+		const u32 gridSizeY = (height + blockSizeY - 1) / blockSizeY;
+		Kernel traversalKernel;
+
+		buildKernelFromSrc(
+			traversalKernel,
+			context.m_orochiDevice,
+			"../src/TraversalKernel.h",
+			"BvhTraversalRestartTrail",
+			std::nullopt);
+
+		traversalKernel.setArgs({ d_rayBuffer.ptr(), d_rayCounterBuffer.ptr(), d_triangleBuff.ptr(), d_bvhNodes.ptr(), d_transformations.ptr(), d_colorBuffer.ptr(), m_rootNodeIdx, width, height, m_nInternalNodes });
+		m_timer.measure(TimerCodes::TraversalTime, [&]() { traversalKernel.launch(gridSizeX, gridSizeY, 1, blockSizeX, blockSizeY, 1); });
+	}
+
+#elif defined IFIF
 
 	//Traversal kernel
 	{
